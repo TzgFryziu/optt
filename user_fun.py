@@ -5,8 +5,8 @@ import csv
 
 def ff1T(x):
     return (
-            -np.cos(0.1 * x) * np.e ** (-((0.1 * x - 2 * np.pi) ** 2))
-            + 0.002 * (0.1 * x) ** 2
+        -np.cos(0.1 * x) * np.e ** (-((0.1 * x - 2 * np.pi) ** 2))
+        + 0.002 * (0.1 * x) ** 2
     )
 
 

@@ -21,7 +21,7 @@ def expansion(ff, x0, d, alpha, nmax):
         if i >= nmax:
             raise Exception("Exceeded maximum number of iterations")
         i += 1
-        x.append(x[0] + (alpha**i) * d)
+        x.append(x[0] + (alpha ** i) * d)
 
         if ff(x[i]) <= ff(x[i + 1]):
             f += 2
@@ -35,7 +35,7 @@ def expansion(ff, x0, d, alpha, nmax):
 
 def fib_seq(n):
     ksi = (1 + np.sqrt(5)) / 2
-    return (ksi**n - (1 - ksi) ** n) / np.sqrt(5)
+    return (ksi ** n - (1 - ksi) ** n) / np.sqrt(5)
 
 
 def fib(ff, a, b, epsilon):
@@ -86,15 +86,15 @@ def lag(ff, a, b, epsilon, gamma, nmax):
         print(f"itteration {i}")
         # Calculate the numerator (l) and denominator (m) for d[i]
         l = (
-            ff(a[i]) * (b[i] ** 2 - c[i] ** 2)
-            + ff(b[i]) * (c[i] ** 2 - a[i] ** 2)
-            + ff(c[i]) * (a[i] ** 2 - b[i] ** 2)
+                ff(a[i]) * (b[i] ** 2 - c[i] ** 2)
+                + ff(b[i]) * (c[i] ** 2 - a[i] ** 2)
+                + ff(c[i]) * (a[i] ** 2 - b[i] ** 2)
         )
 
         m = (
-            ff(a[i]) * (b[i] - c[i])
-            + ff(b[i]) * (c[i] - a[i])
-            + ff(c[i]) * (a[i] - b[i])
+                ff(a[i]) * (b[i] - c[i])
+                + ff(b[i]) * (c[i] - a[i])
+                + ff(c[i]) * (a[i] - b[i])
         )
         f += 6
         if m == 0:  # Handle division by zero
@@ -204,15 +204,15 @@ def lag_r(ff, a, b, epsilon, gamma, nmax, params):
         print(f"itteration {i}")
         # Calculate the numerator (l) and denominator (m) for d[i]
         l = (
-            ff(a[i], params) * (b[i] ** 2 - c[i] ** 2)
-            + ff(b[i], params) * (c[i] ** 2 - a[i] ** 2)
-            + ff(c[i], params) * (a[i] ** 2 - b[i] ** 2)
+                ff(a[i], params) * (b[i] ** 2 - c[i] ** 2)
+                + ff(b[i], params) * (c[i] ** 2 - a[i] ** 2)
+                + ff(c[i], params) * (a[i] ** 2 - b[i] ** 2)
         )
 
         m = (
-            ff(a[i], params) * (b[i] - c[i])
-            + ff(b[i], params) * (c[i] - a[i])
-            + ff(c[i], params) * (a[i] - b[i])
+                ff(a[i], params) * (b[i] - c[i])
+                + ff(b[i], params) * (c[i] - a[i])
+                + ff(c[i], params) * (a[i] - b[i])
         )
         f += 6
         if m == 0:  # Handle division by zero
@@ -266,3 +266,48 @@ def lag_r(ff, a, b, epsilon, gamma, nmax, params):
                 break
     print(f"Lag fcalls {f}")
     return d[-1]  # Return the last d value, which is the approximate solution
+
+
+def hooke_jeeves(ff, x, s, alfa, epsilon, nmax):
+    # Kierunki jako np.array
+    e = np.array([[1, 0], [0, 1]])
+
+    i = 0
+
+    while True:
+        xB = x
+        x = proba(ff, xB, s, e)
+        if ff(x) < ff(xB):
+            while True:
+                i += 1
+                xB_prev = xB
+                xB = x
+
+                print(xB)
+                x = 2 * xB - xB_prev
+                x = proba(ff, x, s, e)
+                if i > nmax:
+                    raise Exception("przekroczono liczbe maksymalnych wywolan funkcji")
+
+                if ff(x) >= ff(xB):
+                    break
+            x = xB
+        else:
+            s = alfa * s
+
+        if i > nmax:
+            raise Exception("przekroczono liczbe maksymalnych wywolan funkcji")
+
+        if s < epsilon:
+            break
+
+    return xB
+
+
+def proba(ff, x, s, e):
+    for j in range(2):
+        if ff(x + s * e[j]) < ff(x):
+            x = x + s * e[j]
+        elif ff(x - s * e[j]) < ff(x):
+            x = x - s * e[j]
+    return x
