@@ -4,8 +4,10 @@ import csv
 
 
 def ff1T(x):
-    return -np.cos(0.1*x)*np.e**(-((0.1*x-2*np.pi)**2)) + 0.002*(0.1*x)**2
-
+    return (
+        -np.cos(0.1 * x) * np.e ** (-((0.1 * x - 2 * np.pi) ** 2))
+        + 0.002 * (0.1 * x) ** 2
+    )
 
 
 def tank_dynamics(t, state, D_A, params):
@@ -13,16 +15,24 @@ def tank_dynamics(t, state, D_A, params):
     V_A, V_B, T_B = state  # state variables at the current time t
 
     # Unpacking the parameters
-    P_A,V_0A,T_0A,P_B,V_0B,T_0B,F_in_B,T_in_B,D_B,a,b,g = params
+    P_A, V_0A, T_0A, P_B, V_0B, T_0B, F_in_B, T_in_B, D_B, a, b, g = params
 
     # Flow rate out of Tank A into Tank B
     dV_A_dt = -a * b * D_A * np.sqrt(2 * g * V_A / P_A) if V_A > 0 else 0
 
     # Flow rate change in Tank B
-    dV_B_dt = (-a * b * D_B * np.sqrt(2 * g * V_B / P_B) + F_in_B + (-dV_A_dt)) if V_B > 0 else (F_in_B + (-dV_A_dt))
+    dV_B_dt = (
+        (-a * b * D_B * np.sqrt(2 * g * V_B / P_B) + F_in_B + (-dV_A_dt))
+        if V_B > 0
+        else (F_in_B + (-dV_A_dt))
+    )
 
     # Effective temperature of water entering Tank B (mixed from Tank A and external inflow)
-    T_in_B = ((-dV_A_dt) * T_0A + F_in_B * 20) / ((-dV_A_dt) + F_in_B) if ((-dV_A_dt) + F_in_B) > 0 else 20
+    T_in_B = (
+        ((-dV_A_dt) * T_0A + F_in_B * 20) / ((-dV_A_dt) + F_in_B)
+        if ((-dV_A_dt) + F_in_B) > 0
+        else 20
+    )
 
     # Rate of temperature change in Tank B
     dT_B_dt = (((-dV_A_dt) + F_in_B) * (T_in_B - T_B)) / V_B if V_B > 0 else 0
@@ -41,8 +51,8 @@ def max_temp_in_tank(D_A, params):
         lambda t, Y: tank_dynamics(t, Y, D_A, params),
         t_span,
         Y0,
-        method='RK45',
-        max_step=1
+        method="RK45",
+        max_step=1,
     )
 
     # Sprawdzenie, czy symulacja się powiodła
@@ -52,7 +62,7 @@ def max_temp_in_tank(D_A, params):
 
     # Znalezienie maksymalnej temperatury w zbiorniku B
     T_B_over_time = sol.y[2]
-    with open("huj.csv", "w", newline='') as f:
+    with open("huj.csv", "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["V_A", "V_B", "T_B"])  # Header row
         for v_a, v_b, t_b in zip(sol.y[0], sol.y[1], sol.y[2]):
@@ -61,4 +71,4 @@ def max_temp_in_tank(D_A, params):
 
     max_temp = max(T_B_over_time)
 
-    return abs(max_temp-50)
+    return abs(max_temp - 50)
