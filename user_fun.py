@@ -5,12 +5,12 @@ import csv
 
 def ff1T(x):
     return (
-        -np.cos(0.1 * x) * np.e ** (-((0.1 * x - 2 * np.pi) ** 2))
-        + 0.002 * (0.1 * x) ** 2
+            -np.cos(0.1 * x) * np.e ** (-((0.1 * x - 2 * np.pi) ** 2))
+            + 0.002 * (0.1 * x) ** 2
     )
 
 
-def tank_dynamics(t, state, D_A, params):
+def df1(t, state, D_A, params):
     # Unpacking the state variables
     V_A, V_B, T_B = state  # state variables at the current time t
 
@@ -40,15 +40,14 @@ def tank_dynamics(t, state, D_A, params):
     return [dV_A_dt, dV_B_dt, dT_B_dt]
 
 
-# Objective function to calculate the maximum temperature in tank B
-def max_temp_in_tank(D_A, params):
+def ff1R(D_A, params):
     P_A, V_0A, T_0A, P_B, V_0B, T_0B, F_in_B, T_in_B, D_B, a, b, g = params
     Y0 = [V_0A, V_0B, T_0B]
     t_span = (0, 2000)  # Zakres czasu dla symulacji
 
     # Rozwiązywanie ODE dla danego D_A
     sol = solve_ivp(
-        lambda t, Y: tank_dynamics(t, Y, D_A, params),
+        lambda t, Y: df1(t, Y, D_A, params),
         t_span,
         Y0,
         method="RK45",
