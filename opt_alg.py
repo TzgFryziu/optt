@@ -321,15 +321,16 @@ def rosenbrock_method(
     d = np.eye(n)  # d_j^(0) = e_j (identity matrix for initial directions)
     lam = np.zeros(n)  # λ_j^(0) = 0
     p = np.zeros(n)  # p_j^(0) = 0
-    s = np.array([s0] * n)  # Ensure `s` is an array
+    s = np.array([float(s0)] * n)  # Ensure `s` is an array
     x_best = x0.copy()
     f_calls = 0  # Track the number of function calls
     # Main loop
     while True:
         for j in range(n):
             # Check the condition for expansion step
+            print(ff(x_best + s[j] * d[:, j]))
+            print(ff(x_best))
             if ff(x_best + s[j] * d[:, j]) < ff(x_best):
-                print(s[j] * d[:, j])
                 x_best = x_best + s[j] * d[:, j]
                 lam[j] += s[j]
                 s[j] *= alpha
@@ -352,7 +353,7 @@ def rosenbrock_method(
             d = update_directions(d, lam)
             lam = np.zeros(n)
             p = np.zeros(n)
-            s = np.array([s0] * n)  # Reset step sizes to initial values
+            s = np.array([float(s0)] * n)  # Reset step sizes to initial values
 
         # Stopping criterion
         if max(abs(s)) < epsilon:
@@ -361,44 +362,27 @@ def rosenbrock_method(
     return x_best
 
 
-def update_directions(D_i, lambdas):
-    """
-    Funkcja do wyznaczania nowych kierunków d_j^(i+1) na podstawie macierzy D^(i) i wektora lambdas.
+def update_directions(d, lam):
+    # Uaktualnienie bazy kierunków z wektorem `λ`
+    n = len(lam)
+    Q = np.zeros((n, n))
+    for i in range(n):
+        Q[i, :i + 1] = lam[i]
+    Q = np.dot(d, Q)
 
-    Parametry:
-    - D_i: macierz (n, n) zawierająca stare kierunki d_j^(i) jako kolumny,
-    - lambdas: wektor (n,) zawierający wartości lambda_j^(i+1).
+    # Proces Gram-Schmidta dla ortogonalizacji kolumn
+    v = Q[:, 0] / np.linalg.norm(Q[:, 0])
+    d[:, 0] = v
 
-    Zwraca:
-    - D_i_plus_1: macierz (n, n) zawierająca nowe kierunki d_j^(i+1) jako kolumny.
-    """
-    print(D_i)
-    # Rozmiar problemu
-    n = len(lambdas)
+    for i in range(1, n):
+        temp = np.zeros(n)
+        for j in range(i):
+            temp += np.dot(Q[:, i].T, d[:, j]) * d[:, j]
+        v = Q[:, i] - temp
+        v /= np.linalg.norm(v)
+        d[:, i] = v
 
-    # Tworzenie macierzy przekątnej Lambda^(i+1)
-    Lambda = np.diag(lambdas)
+    print("d")
+    print(d)
 
-    # Obliczenie macierzy Q^(i) = D^(i) * Lambda
-    Q = D_i @ Lambda
-
-    # Inicjalizacja nowej macierzy kierunków D^(i+1)
-    D_i_plus_1 = np.zeros_like(D_i)
-
-    # Algorytm ortogonalizacji i normalizacji
-    for j in range(n):
-        # Inicjalizacja v_j^(i+1)
-        v_j = Q[:, j]
-
-        # Ortogonalizacja względem wcześniej wyznaczonych kierunków d_k^(i+1) dla k < j
-        for k in range(j):
-            projection = np.dot(v_j, D_i_plus_1[:, k]) * D_i_plus_1[:, k]
-            v_j = v_j - projection
-
-        # Normalizacja v_j^(i+1) do jednostkowego wektora d_j^(i+1)
-        d_j = v_j / np.linalg.norm(v_j)
-
-        # Zapisanie d_j^(i+1) do macierzy D^(i+1)
-        D_i_plus_1[:, j] = d_j
-
-    return D_i_plus_1
+    return d
