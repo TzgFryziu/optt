@@ -5,8 +5,8 @@ import csv
 
 def ff1T(x):
     return (
-        -np.cos(0.1 * x) * np.e ** (-((0.1 * x - 2 * np.pi) ** 2))
-        + 0.002 * (0.1 * x) ** 2
+            -np.cos(0.1 * x) * np.e ** (-((0.1 * x - 2 * np.pi) ** 2))
+            + 0.002 * (0.1 * x) ** 2
     )
 
 
@@ -71,3 +71,13 @@ def ff1R(D_A, params):
     max_temp = max(T_B_over_time)
 
     return abs(max_temp - 50)
+
+
+def ff2T(x):
+    x1, x2 = x
+    return x1 ** 2 + x2 ** 2 - np.cos(2.5 * np.pi * x1) - np.cos(2.5 * np.pi * x2) + 2
+
+
+def tescik(x):
+    x1, x2 = x
+    return 2.5 * (x1 ** 2 - x2) ** 2 + (1 - x1) ** 2

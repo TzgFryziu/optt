@@ -283,7 +283,6 @@ def hooke_jeeves(ff, x, s, alfa, epsilon, nmax):
                 xB_prev = xB
                 xB = x
 
-                print(xB)
                 x = 2 * xB - xB_prev
                 x = proba(ff, x, s, e)
                 if i > nmax:
@@ -311,3 +310,95 @@ def proba(ff, x, s, e):
         elif ff(x - s * e[j]) < ff(x):
             x = x - s * e[j]
     return x
+
+
+def rosenbrock_method(
+        ff, x0, s0, alpha, beta, epsilon, Nmax
+):
+    # Initialize variables
+    n = len(x0)
+    i = 0
+    d = np.eye(n)  # d_j^(0) = e_j (identity matrix for initial directions)
+    lam = np.zeros(n)  # λ_j^(0) = 0
+    p = np.zeros(n)  # p_j^(0) = 0
+    s = np.array([s0] * n)  # Ensure `s` is an array
+    x_best = x0.copy()
+    f_calls = 0  # Track the number of function calls
+    # Main loop
+    while True:
+        for j in range(n):
+            # Check the condition for expansion step
+            if ff(x_best + s[j] * d[:, j]) < ff(x_best):
+                print(s[j] * d[:, j])
+                x_best = x_best + s[j] * d[:, j]
+                lam[j] += s[j]
+                s[j] *= alpha
+            else:
+                # Contraction step
+                s[j] *= -beta
+                p[j] += 1
+
+            f_calls += 1
+            if f_calls > Nmax:
+                print("Exceeded maximum function evaluations")
+                return x_best
+        # Update x^(i+1)
+        x0 = x_best.copy()
+        i += 1
+
+        # Check if direction base needs to be reset
+        if all(l != 0 for l in lam) and all(x != 0 for x in p):
+            # Reinitialize directions and steps
+            d = update_directions(d, lam)
+            lam = np.zeros(n)
+            p = np.zeros(n)
+            s = np.array([s0] * n)  # Reset step sizes to initial values
+
+        # Stopping criterion
+        if max(abs(s)) < epsilon:
+            break
+
+    return x_best
+
+
+def update_directions(D_i, lambdas):
+    """
+    Funkcja do wyznaczania nowych kierunków d_j^(i+1) na podstawie macierzy D^(i) i wektora lambdas.
+
+    Parametry:
+    - D_i: macierz (n, n) zawierająca stare kierunki d_j^(i) jako kolumny,
+    - lambdas: wektor (n,) zawierający wartości lambda_j^(i+1).
+
+    Zwraca:
+    - D_i_plus_1: macierz (n, n) zawierająca nowe kierunki d_j^(i+1) jako kolumny.
+    """
+    print(D_i)
+    # Rozmiar problemu
+    n = len(lambdas)
+
+    # Tworzenie macierzy przekątnej Lambda^(i+1)
+    Lambda = np.diag(lambdas)
+
+    # Obliczenie macierzy Q^(i) = D^(i) * Lambda
+    Q = D_i @ Lambda
+
+    # Inicjalizacja nowej macierzy kierunków D^(i+1)
+    D_i_plus_1 = np.zeros_like(D_i)
+
+    # Algorytm ortogonalizacji i normalizacji
+    for j in range(n):
+        # Inicjalizacja v_j^(i+1)
+        v_j = Q[:, j]
+
+        # Ortogonalizacja względem wcześniej wyznaczonych kierunków d_k^(i+1) dla k < j
+        for k in range(j):
+            projection = np.dot(v_j, D_i_plus_1[:, k]) * D_i_plus_1[:, k]
+            v_j = v_j - projection
+
+        # Normalizacja v_j^(i+1) do jednostkowego wektora d_j^(i+1)
+        d_j = v_j / np.linalg.norm(v_j)
+
+        # Zapisanie d_j^(i+1) do macierzy D^(i+1)
+        D_i_plus_1[:, j] = d_j
+
+    return D_i_plus_1

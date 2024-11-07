@@ -96,5 +96,24 @@ def lab1_r():
     #
 
 
+def lab2_t():
+    x = np.array([-0.5, 1])
+    s = 0.01
+    alfa = 0.1
+    epsilon = 0.00001
+    nmax = 50000
+    jeeves_res = hooke_jeeves(ff2T, x, s, alfa, epsilon, nmax)
+    print(jeeves_res, ff2T(jeeves_res))
+    print("XXXXXXXXXXXXXXX")
+    epsilon = 0.0000000001
+    beta = 0.5
+    s = 1
+    alfa = 2
+
+    rosenbrock_res = rosenbrock_method(tescik, x, s, alfa, beta, epsilon, nmax)
+    print(rosenbrock_res, tescik(rosenbrock_res))
+
+
 if __name__ == "__main__":
-    pass
+    lab2_t()
+    x = np.array([-0.5, 1])
