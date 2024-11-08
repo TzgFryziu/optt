@@ -273,10 +273,11 @@ def hooke_jeeves(ff, x, s, alfa, epsilon, nmax):
     e = np.array([[1, 0], [0, 1]])
 
     i = 0
-
+    fcalls = 0
     while True:
         xB = x
-        x = proba(ff, xB, s, e)
+        x,fcalls = proba(ff, xB, s, e,fcalls)
+        fcalls += 2
         if ff(x) < ff(xB):
             while True:
                 i += 1
@@ -284,10 +285,10 @@ def hooke_jeeves(ff, x, s, alfa, epsilon, nmax):
                 xB = x
 
                 x = 2 * xB - xB_prev
-                x = proba(ff, x, s, e)
+                x,fcalls = proba(ff, x, s, e,fcalls)
                 if i > nmax:
                     raise Exception("przekroczono liczbe maksymalnych wywolan funkcji")
-
+                fcalls+=2
                 if ff(x) >= ff(xB):
                     break
             x = xB
@@ -300,16 +301,18 @@ def hooke_jeeves(ff, x, s, alfa, epsilon, nmax):
         if s < epsilon:
             break
 
-    return xB
+    return [xB[0],xB[1],ff(xB),fcalls]
 
 
-def proba(ff, x, s, e):
+def proba(ff, x, s, e,f):
     for j in range(2):
+        f+=2
         if ff(x + s * e[j]) < ff(x):
             x = x + s * e[j]
+            f+=2
         elif ff(x - s * e[j]) < ff(x):
             x = x - s * e[j]
-    return x
+    return x,f
 
 
 def rosenbrock_method(
@@ -339,7 +342,7 @@ def rosenbrock_method(
                 s[j] *= -beta
                 p[j] += 1
 
-            f_calls += 1
+            f_calls += 2
             if f_calls > Nmax:
                 print("Exceeded maximum function evaluations")
                 return x_best
@@ -359,7 +362,7 @@ def rosenbrock_method(
         if max(abs(s)) < epsilon:
             break
 
-    return x_best
+    return [x_best[0],x_best[1],ff(x_best),f_calls]
 
 
 def update_directions(d, lam):

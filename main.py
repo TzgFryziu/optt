@@ -97,21 +97,53 @@ def lab1_r():
 
 
 def lab2_t():
-    x = np.array([-0.5, 1])
-    s = 0.01
-    alfa = 0.1
-    epsilon = 0.00001
-    nmax = 50000
-    jeeves_res = hooke_jeeves(ff2T, x, s, alfa, epsilon, nmax)
-    print(jeeves_res, ff2T(jeeves_res))
-    print("XXXXXXXXXXXXXXX")
-    epsilon = 0.0000000001
-    beta = 0.5
-    s = 1
-    alfa = 2
+    result = {"x":[],"jeeves": [], "rosenbrock": []}
 
-    rosenbrock_res = rosenbrock_method(tescik, x, s, alfa, beta, epsilon, nmax)
-    print(rosenbrock_res, tescik(rosenbrock_res))
+    for i in range(100):
+        x = np.array([np.random.uniform(-1, 1), np.random.uniform(-1, 1)])
+        result["x"].append(x)
+        result["jeeves"].append(hooke_jeeves(ff2T,x,0.001,0.3,0.0001,1000))
+        result["rosenbrock"].append(rosenbrock_method(ff2T,x,0.001,1.1,0.5,0.0001,1000))
+
+    # Zapis do pliku CSV
+    with open("wyniki_lab_2.csv", "w", newline="") as csv_file:
+        writer = csv.writer(csv_file)
+        # Zapisujemy nagłówki
+
+        writer.writerow(
+            [
+                "Index",
+                "x1",
+                "x2",
+                "HJ x1",
+                "HJ x2",
+                "HJ y",
+                "HJ fcalls",
+                "R x1",
+                "R x2",
+                "R y",
+                "R fcalls",
+            ]
+        )
+
+        # Zapisujemy dane
+        for i in range(100):
+            writer.writerow(
+                [
+                    i,
+                    result["x"][i][0],
+                    result["x"][i][1],
+                    result["jeeves"][i][0],
+                    result["jeeves"][i][1],
+                    result["jeeves"][i][2],
+                    result["jeeves"][i][3],
+                    result["rosenbrock"][i][0],
+                    result["rosenbrock"][i][1],
+                    result["rosenbrock"][i][2],
+                    result["rosenbrock"][i][3],
+                ]
+            )
+
 
 
 if __name__ == "__main__":
