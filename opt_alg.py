@@ -1,4 +1,5 @@
 import numpy as np
+import csv
 
 
 def expansion(ff, x0, d, alpha, nmax):
@@ -274,34 +275,38 @@ def hooke_jeeves(ff, x, s, alfa, epsilon, nmax):
 
     i = 0
     fcalls = 0
-    while True:
-        xB = x
-        x,fcalls = proba(ff, xB, s, e,fcalls)
-        fcalls += 2
-        if ff(x) < ff(xB):
-            while True:
-                i += 1
-                xB_prev = xB
-                xB = x
+    with open("Jeeves.csv","w",newline="")as f:
+        writer = csv.writer(f)
+        while True:
 
-                x = 2 * xB - xB_prev
-                x,fcalls = proba(ff, x, s, e,fcalls)
-                if i > nmax:
-                    raise Exception("przekroczono liczbe maksymalnych wywolan funkcji")
-                fcalls+=2
-                if ff(x) >= ff(xB):
-                    break
-            x = xB
-        else:
-            s = alfa * s
+            xB = x
+            writer.writerow(xB)
+            x,fcalls = proba(ff, xB, s, e,fcalls)
+            fcalls += 2
+            if ff(x) < ff(xB):
+                while True:
+                    i += 1
+                    xB_prev = xB
+                    xB = x
 
-        if i > nmax:
-            raise Exception("przekroczono liczbe maksymalnych wywolan funkcji")
+                    x = 2 * xB - xB_prev
+                    x,fcalls = proba(ff, x, s, e,fcalls)
+                    if i > nmax:
+                        raise Exception("przekroczono liczbe maksymalnych wywolan funkcji")
+                    fcalls+=2
+                    if ff(x) >= ff(xB):
+                        break
+                x = xB
+            else:
+                s = alfa * s
 
-        if s < epsilon:
-            break
+            if i > nmax:
+                raise Exception("przekroczono liczbe maksymalnych wywolan funkcji")
 
-    return [xB[0],xB[1],ff(xB),fcalls]
+            if s < epsilon:
+                break
+
+        return [xB[0],xB[1],ff(xB),fcalls]
 
 
 def proba(ff, x, s, e,f):
@@ -318,6 +323,7 @@ def proba(ff, x, s, e,f):
 def rosenbrock_method(
         ff, x0, s0, alpha, beta, epsilon, Nmax
 ):
+
     # Initialize variables
     n = len(x0)
     i = 0
@@ -328,39 +334,40 @@ def rosenbrock_method(
     x_best = x0.copy()
     f_calls = 0  # Track the number of function calls
     # Main loop
-    while True:
-        for j in range(n):
-            # Check the condition for expansion step
-            print(ff(x_best + s[j] * d[:, j]))
-            print(ff(x_best))
-            if ff(x_best + s[j] * d[:, j]) < ff(x_best):
-                x_best = x_best + s[j] * d[:, j]
-                lam[j] += s[j]
-                s[j] *= alpha
-            else:
-                # Contraction step
-                s[j] *= -beta
-                p[j] += 1
+    with open("Rosenbrock_excel.csv","w",newline="") as f:
+        writer = csv.writer(f)
+        while True:
+            for j in range(n):
+                # Check the condition for expansion step
+                if ff(x_best + s[j] * d[:, j]) < ff(x_best):
+                    x_best = x_best + s[j] * d[:, j]
+                    lam[j] += s[j]
+                    s[j] *= alpha
+                else:
+                    # Contraction step
+                    s[j] *= -beta
+                    p[j] += 1
 
-            f_calls += 2
-            if f_calls > Nmax:
-                print("Exceeded maximum function evaluations")
-                return x_best
-        # Update x^(i+1)
-        x0 = x_best.copy()
-        i += 1
+                f_calls += 2
+                if f_calls > Nmax:
+                    print("Exceeded maximum function evaluations")
+                    return x_best
+            # Update x^(i+1)
+            x0 = x_best.copy()
+            i += 1
 
-        # Check if direction base needs to be reset
-        if all(l != 0 for l in lam) and all(x != 0 for x in p):
-            # Reinitialize directions and steps
-            d = update_directions(d, lam)
-            lam = np.zeros(n)
-            p = np.zeros(n)
-            s = np.array([float(s0)] * n)  # Reset step sizes to initial values
+            # Check if direction base needs to be reset
+            if all(l != 0 for l in lam) and all(x != 0 for x in p):
+                # Reinitialize directions and steps
+                d = update_directions(d, lam)
+                lam = np.zeros(n)
+                p = np.zeros(n)
+                s = np.array([float(s0)] * n)  # Reset step sizes to initial values
 
-        # Stopping criterion
-        if max(abs(s)) < epsilon:
-            break
+            # Stopping criterion
+            if max(abs(s)) < epsilon:
+                break
+            writer.writerow(x_best)
 
     return [x_best[0],x_best[1],ff(x_best),f_calls]
 
@@ -384,8 +391,5 @@ def update_directions(d, lam):
         v = Q[:, i] - temp
         v /= np.linalg.norm(v)
         d[:, i] = v
-
-    print("d")
-    print(d)
 
     return d

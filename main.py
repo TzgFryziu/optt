@@ -99,53 +99,81 @@ def lab1_r():
 def lab2_t():
     result = {"x":[],"jeeves": [], "rosenbrock": []}
 
-    for i in range(100):
-        x = np.array([np.random.uniform(-1, 1), np.random.uniform(-1, 1)])
-        result["x"].append(x)
-        result["jeeves"].append(hooke_jeeves(ff2T,x,0.001,0.3,0.0001,1000))
-        result["rosenbrock"].append(rosenbrock_method(ff2T,x,0.001,1.1,0.5,0.0001,1000))
-
+    #for i in range(100):
+    #   x = np.array([np.random.uniform(-1, 1), np.random.uniform(-1, 1)])
+    #   result["x"].append(x)
+    #   result["jeeves"].append(hooke_jeeves(ff2T,x,0.001,0.3,0.0001,1000))
+    #   result["rosenbrock"].append(rosenbrock_method(ff2T,x,0.001,1.1,0.5,0.0001,1000))
+    x = np.array([np.random.uniform(-1, 1), np.random.uniform(-1, 1)])
+    hooke_jeeves(ff2T,x,0.1,0.3,0.0001,1000)
+    rosenbrock_method(ff2T,x,0.1,1,0.5,0.0001,1000)
     # Zapis do pliku CSV
-    with open("wyniki_lab_2.csv", "w", newline="") as csv_file:
-        writer = csv.writer(csv_file)
-        # Zapisujemy nagłówki
+    # with open("wyniki_lab_2.csv", "w", newline="") as csv_file:
+    #     writer = csv.writer(csv_file)
+    #     # Zapisujemy nagłówki
+    #
+    #     writer.writerow(
+    #         [
+    #             "Index",
+    #             "x1",
+    #             "x2",
+    #             "HJ x1",
+    #             "HJ x2",
+    #             "HJ y",
+    #             "HJ fcalls",
+    #             "R x1",
+    #             "R x2",
+    #             "R y",
+    #             "R fcalls",
+    #         ]
+    #     )
+    #
+    #     # Zapisujemy dane
+    #     for i in range(100):
+    #         writer.writerow(
+    #             [
+    #                 i,
+    #                 result["x"][i][0],
+    #                 result["x"][i][1],
+    #                 result["jeeves"][i][0],
+    #                 result["jeeves"][i][1],
+    #                 result["jeeves"][i][2],
+    #                 result["jeeves"][i][3],
+    #                 result["rosenbrock"][i][0],
+    #                 result["rosenbrock"][i][1],
+    #                 result["rosenbrock"][i][2],
+    #                 result["rosenbrock"][i][3],
+    #             ]
+    #         )
 
-        writer.writerow(
-            [
-                "Index",
-                "x1",
-                "x2",
-                "HJ x1",
-                "HJ x2",
-                "HJ y",
-                "HJ fcalls",
-                "R x1",
-                "R x2",
-                "R y",
-                "R fcalls",
-            ]
-        )
 
-        # Zapisujemy dane
-        for i in range(100):
-            writer.writerow(
-                [
-                    i,
-                    result["x"][i][0],
-                    result["x"][i][1],
-                    result["jeeves"][i][0],
-                    result["jeeves"][i][1],
-                    result["jeeves"][i][2],
-                    result["jeeves"][i][3],
-                    result["rosenbrock"][i][0],
-                    result["rosenbrock"][i][1],
-                    result["rosenbrock"][i][2],
-                    result["rosenbrock"][i][3],
-                ]
-            )
+def lab2_r():
+    alfa_HJ = 0.1
+    alfa_Ros = 2
+    epsilon = 0.00001
+    beta = 0.5
+    Nmax = 1000
+    s = 0.1
+    x0 = np.array([1.0, 1.0])
 
+    result_hj = hooke_jeeves(ff2R, x0, s, alfa_HJ, epsilon, Nmax)
+    print("Hooke-Jeeves result:", result_hj)
 
+    result_ros = rosenbrock_method(ff2R, x0, s, alfa_Ros, beta, epsilon, Nmax)
+    print("Rosenbrock result:", result_ros)
+
+    print("Test k1=5, k2=5:", ff2R([5, 5]))  # Bazowy test
+
+    # Przeprowadzenie optymalizacji dla Hooke’a-Jeevesa
+    k1_k2_HJ = result_hj[:2]
+    k1_k2_Rosen = result_ros[:2]
+
+    print("Optymalne k1 i k2 dla Hooke’a-Jeevesa:", k1_k2_HJ)
+    print("Optymalne k1 i k2 dla Rosenbrocka:", k1_k2_Rosen)
+
+    # Przeprowadzenie symulacji dla optymalnych współczynników Hooke’a-Jeevesa i Rosenbrocka
+    simulate_and_save(k1_k2_HJ[0], k1_k2_HJ[1], "HJ")
+    simulate_and_save(k1_k2_Rosen[0], k1_k2_Rosen[1], "Rosen")
 
 if __name__ == "__main__":
-    lab2_t()
-    x = np.array([-0.5, 1])
+    lab2_r()
