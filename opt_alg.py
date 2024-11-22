@@ -456,3 +456,38 @@ def nelder_mead(func, x0, s=1.0, alpha=1.0, gamma=2.0, beta=0.5, delta=0.5, epsi
 
     # Jeśli osiągnięto maksymalną liczbę wywołań funkcji celu
     raise RuntimeError("Osiągnięto maksymalną liczbę wywołań funkcji celu bez zbieżności.")
+
+
+
+
+# Funkcja kary
+def penalty_method(func, constraints, x0, c1, alpha, epsilon, max_calls):
+
+    def augmented_function(x, c):
+        # Rozszerzona funkcja celu z karą
+        penalty = sum(max(0, g(x)) ** 2 for g in constraints)
+        return func(x) + c * penalty
+
+    x_current = x0
+    c = c1
+    calls = 0
+
+    while True:
+        # Optymalizacja funkcji z karą przy bieżącym c
+        def penalized_func(x):
+            nonlocal calls
+            calls += 1
+            return augmented_function(x, c)
+
+        try:
+            x_next = nelder_mead(penalized_func, x_current, epsilon=epsilon, max_calls=max_calls - calls)
+        except RuntimeError:
+            raise RuntimeError("Przekroczono maksymalną liczbę wywołań funkcji celu.")
+
+        # Sprawdzenie warunku stopu
+        if np.linalg.norm(x_next - x_current) < epsilon:
+            return x_next
+
+        # Aktualizacja współczynnika kary i punktu startowego
+        x_current = x_next
+        c *= alpha

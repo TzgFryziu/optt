@@ -164,8 +164,25 @@ def lab2_r():
 
 
 def lab3_t():
-    x = np.array([3.5, 3.5])
-    print(nelder_mead(ff3t, x))
+    # Punkt startowy
+    x0 = np.array([3.0, 3.0])
+
+    # Parametry metody
+    c1 = 1.0
+    alpha = 10.0
+    epsilon = 1e-6
+    max_calls = 100000
+
+    # Lista ograniczeń
+    constraints = [constraint_g1, constraint_g2, constraint_g3]
+
+    # Uruchomienie metody kary
+    try:
+        x_star = penalty_method(ff3t, constraints, x0, c1, alpha, epsilon, max_calls)
+        print("Optymalny punkt:", x_star)
+        print("Norma wyniku:", np.linalg.norm(x_star))
+    except ValueError as e:
+        print("Błąd:", e)
 
 
 if __name__ == "__main__":

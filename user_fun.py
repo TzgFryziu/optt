@@ -153,5 +153,6 @@ def constraint_g2(x):
     return -x[1] + 1  # g2(x2) <= 0 -> x2 >= 1
 
 
-def constraint_g3(x, a):
-    return x[0] ** 2 + x[1] ** 2 - a  # g3(x1, x2) <= 0
+def constraint_g3(x):
+    a = 5
+    return np.sqrt(x[0] ** 2 + x[1] ** 2)- a  # g3(x1, x2) <= 0
