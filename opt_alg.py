@@ -276,7 +276,7 @@ def hooke_jeeves(ff, x, s, alfa, epsilon, nmax):
     fcalls = 0
     while True:
         xB = x
-        x,fcalls = proba(ff, xB, s, e,fcalls)
+        x, fcalls = proba(ff, xB, s, e, fcalls)
         fcalls += 2
         if ff(x) < ff(xB):
             while True:
@@ -285,10 +285,10 @@ def hooke_jeeves(ff, x, s, alfa, epsilon, nmax):
                 xB = x
 
                 x = 2 * xB - xB_prev
-                x,fcalls = proba(ff, x, s, e,fcalls)
+                x, fcalls = proba(ff, x, s, e, fcalls)
                 if i > nmax:
                     raise Exception("przekroczono liczbe maksymalnych wywolan funkcji")
-                fcalls+=2
+                fcalls += 2
                 if ff(x) >= ff(xB):
                     break
             x = xB
@@ -301,18 +301,18 @@ def hooke_jeeves(ff, x, s, alfa, epsilon, nmax):
         if s < epsilon:
             break
 
-    return [xB[0],xB[1],ff(xB),fcalls]
+    return [xB[0], xB[1], ff(xB), fcalls]
 
 
-def proba(ff, x, s, e,f):
+def proba(ff, x, s, e, f):
     for j in range(2):
-        f+=2
+        f += 2
         if ff(x + s * e[j]) < ff(x):
             x = x + s * e[j]
-            f+=2
+            f += 2
         elif ff(x - s * e[j]) < ff(x):
             x = x - s * e[j]
-    return x,f
+    return x, f
 
 
 def rosenbrock_method(
@@ -331,8 +331,6 @@ def rosenbrock_method(
     while True:
         for j in range(n):
             # Check the condition for expansion step
-            print(ff(x_best + s[j] * d[:, j]))
-            print(ff(x_best))
             if ff(x_best + s[j] * d[:, j]) < ff(x_best):
                 x_best = x_best + s[j] * d[:, j]
                 lam[j] += s[j]
@@ -362,7 +360,7 @@ def rosenbrock_method(
         if max(abs(s)) < epsilon:
             break
 
-    return [x_best[0],x_best[1],ff(x_best),f_calls]
+    return [x_best[0], x_best[1], ff(x_best), f_calls]
 
 
 def update_directions(d, lam):
@@ -385,7 +383,76 @@ def update_directions(d, lam):
         v /= np.linalg.norm(v)
         d[:, i] = v
 
-    print("d")
-    print(d)
-
     return d
+
+
+def nelder_mead(func, x0, s=1.0, alpha=1.0, gamma=2.0, beta=0.5, delta=0.5, epsilon=1e-6, max_calls=500):
+    # Liczba wymiarów problemu
+    n = len(x0)
+
+    # Inicjalizacja sympleksu
+    simplex = [x0]
+    for i in range(n):
+        vertex = np.copy(x0)
+        vertex[i] += s
+        simplex.append(vertex)
+
+    # Funkcje celu dla wierzchołków
+    f_values = [func(v) for v in simplex]
+    calls = n + 1  # Liczymy wywołania funkcji celu
+
+    while calls < max_calls:
+        # Sortowanie sympleksu wg wartości funkcji celu
+        indices = np.argsort(f_values)
+        simplex = [simplex[i] for i in indices]
+        f_values = [f_values[i] for i in indices]
+        print(func(simplex[0]))
+        # Sprawdzenie warunku stopu
+        if np.max([np.linalg.norm(simplex[0] - v) for v in simplex]) < epsilon:
+            return simplex[0]
+
+        # Wyznaczenie środka ciężkości pomijając najgorszy wierzchołek
+        p = np.mean(simplex[:-1], axis=0)
+
+        # Odbicie
+        p_reflect = p + alpha * (p - simplex[-1])
+        f_reflect = func(p_reflect)
+        calls += 1
+
+        if f_values[0] <= f_reflect < f_values[-2]:
+            # Akceptacja odbicia
+            simplex[-1] = p_reflect
+            f_values[-1] = f_reflect
+            continue
+
+        if f_reflect < f_values[0]:
+            # Ekspansja
+            p_expand = p + gamma * (p_reflect - p)
+            f_expand = func(p_expand)
+            calls += 1
+
+            if f_expand < f_reflect:
+                simplex[-1] = p_expand
+                f_values[-1] = f_expand
+            else:
+                simplex[-1] = p_reflect
+                f_values[-1] = f_reflect
+            continue
+
+        # Zawężenie
+        p_contract = p + beta * (simplex[-1] - p)
+        f_contract = func(p_contract)
+        calls += 1
+
+        if f_contract < f_values[-1]:
+            simplex[-1] = p_contract
+            f_values[-1] = f_contract
+        else:
+            # Redukcja
+            for i in range(1, len(simplex)):
+                simplex[i] = simplex[0] + delta * (simplex[i] - simplex[0])
+                f_values[i] = func(simplex[i])
+            calls += n
+
+    # Jeśli osiągnięto maksymalną liczbę wywołań funkcji celu
+    raise RuntimeError("Osiągnięto maksymalną liczbę wywołań funkcji celu bez zbieżności.")

@@ -97,13 +97,13 @@ def lab1_r():
 
 
 def lab2_t():
-    result = {"x":[],"jeeves": [], "rosenbrock": []}
+    result = {"x": [], "jeeves": [], "rosenbrock": []}
 
     for i in range(100):
         x = np.array([np.random.uniform(-1, 1), np.random.uniform(-1, 1)])
         result["x"].append(x)
-        result["jeeves"].append(hooke_jeeves(ff2T,x,0.001,0.3,0.0001,1000))
-        result["rosenbrock"].append(rosenbrock_method(ff2T,x,0.001,1.1,0.5,0.0001,1000))
+        result["jeeves"].append(hooke_jeeves(ff2T, x, 0.001, 0.3, 0.0001, 1000))
+        result["rosenbrock"].append(rosenbrock_method(ff2T, x, 0.001, 1.1, 0.5, 0.0001, 1000))
 
     # Zapis do pliku CSV
     with open("wyniki_lab_2.csv", "w", newline="") as csv_file:
@@ -145,7 +145,28 @@ def lab2_t():
             )
 
 
+def lab2_r():
+    alfa_HJ = 0.1
+    alfa_Ros = 2
+    epsilon = 0.00001
+    beta = 0.5
+    Nmax = 1000
+    s = 0.1
+    x0 = np.array([1.0, 1.0])
+
+    result_hj = hooke_jeeves(ff2R, x0, s, alfa_HJ, epsilon, Nmax)
+    print("Hooke-Jeeves result:", result_hj)
+
+    result_ros = rosenbrock_method(ff2R, x0, s, alfa_Ros, beta, epsilon, Nmax)
+    print("Rosenbrock result:", result_ros)
+
+    print("Test k1=5, k2=5:", ff2R([5, 5]))  # Bazowy test
+
+
+def lab3_t():
+    x = np.array([3.5, 3.5])
+    print(nelder_mead(ff3t, x))
+
 
 if __name__ == "__main__":
-    lab2_t()
-    x = np.array([-0.5, 1])
+    lab3_t()
