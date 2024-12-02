@@ -184,6 +184,18 @@ def lab3_t():
     except ValueError as e:
         print("Błąd:", e)
 
+def lab4_t():
+    x0 = np.array([-5.0,-5.0])
+    h = 0.05
+    print("Metoda gradientów sprzężonych:")
+    res = metoda_gradientow_sprzezonych(ff4t, x0, 0.1,  10000,h)
+    print(res)
+    print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
+
+    print("Metoda gradientów prostych:")
+    res = metoda_gradientow_prostych(ff4t, x0, 0.1,  10000,h)
+    print(res)
+    print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
 
 if __name__ == "__main__":
-    lab3_t()
+    lab4_t()

@@ -458,11 +458,7 @@ def nelder_mead(func, x0, s=1.0, alpha=1.0, gamma=2.0, beta=0.5, delta=0.5, epsi
     raise RuntimeError("Osiągnięto maksymalną liczbę wywołań funkcji celu bez zbieżności.")
 
 
-
-
-# Funkcja kary
 def penalty_method(func, constraints, x0, c1, alpha, epsilon, max_calls):
-
     def augmented_function(x, c):
         # Rozszerzona funkcja celu z karą
         penalty = sum(max(0, g(x)) ** 2 for g in constraints)
@@ -491,3 +487,46 @@ def penalty_method(func, constraints, x0, c1, alpha, epsilon, max_calls):
         # Aktualizacja współczynnika kary i punktu startowego
         x_current = x_next
         c *= alpha
+
+
+def pochodna_1(x):
+    x1, x2 = x
+    return 10 * x1 + 8 * x2 - 34
+
+
+def pochodna_2(x):
+    x1, x2 = x
+    return 10 * x2 + 8 * x1 - 38
+
+
+def metoda_gradientow_prostych(ff, x0, epsilon, nmax, h):
+    i = 0
+    x = np.array(x0, dtype=float)
+    g = [pochodna_1, pochodna_2]
+
+    while True:
+        d = -np.array([g[0](x), g[1](x)])
+        x_curr= x + h * d
+        i += 1
+        print(np.linalg.norm(x_curr-x))
+        if np.linalg.norm(x_curr-x) < epsilon or i >= nmax:
+            break
+        x = x_curr
+
+    return x
+
+def metoda_gradientow_sprzezonych(ff, x0, epsilon, nmax,h):
+    i = 0
+    x = np.array(x0, dtype=float)
+    g = [pochodna_1, pochodna_2]
+    d = -np.array([g[0](x), g[1](x)])
+    while True:
+        x_curr = x + h * d
+        i += 1
+        print(np.linalg.norm(x_curr - x))
+        if np.linalg.norm(x_curr - x) < epsilon or i >= nmax:
+            break
+        beta = np.linalg.norm([g[0](x_curr), g[1](x_curr)])**2/np.linalg.norm([g[0](x), g[1](x)])**2
+        d = -np.array([g[0](x_curr), g[1](x_curr)])+beta*d
+        x = x_curr
+    return x

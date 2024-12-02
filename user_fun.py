@@ -156,3 +156,7 @@ def constraint_g2(x):
 def constraint_g3(x):
     a = 5
     return np.sqrt(x[0] ** 2 + x[1] ** 2)- a  # g3(x1, x2) <= 0
+
+def ff4t(x):
+    x1,x2 = x
+    return (x1+2*x2-7)**5 + (2*x1+x2-5)**2
