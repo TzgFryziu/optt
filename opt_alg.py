@@ -498,35 +498,243 @@ def pochodna_2(x):
     x1, x2 = x
     return 10 * x2 + 8 * x1 - 38
 
+def pochodna_1_1(x):
+    x1, x2 = x
+    return 10
+def pochodna_1_2(x):
+    x1, x2 = x
+    return 8
+def pochodna_2_1(x):
+    x1, x2 = x
+    return 8
+def pochodna_2_2(x):
+    x1, x2 = x
+    return 10
 
-def metoda_gradientow_prostych(ff, x0, epsilon, nmax, h):
+
+def metoda_gradientow_prostych(ff,  x0, epsilon, nmax, h):
+
     i = 0
     x = np.array(x0, dtype=float)
-    g = [pochodna_1, pochodna_2]
 
     while True:
-        d = -np.array([g[0](x), g[1](x)])
-        x_curr= x + h * d
+        # Compute gradient
+        g = np.array([pochodna_1(x), pochodna_2(x)])
+        # Update the current point
+        direction = -g
+        x_curr = x + h * direction
         i += 1
-        print(np.linalg.norm(x_curr-x))
-        if np.linalg.norm(x_curr-x) < epsilon or i >= nmax:
+
+        # Check for convergence
+        if np.linalg.norm(x_curr - x) < epsilon or i >= nmax:
             break
+
         x = x_curr
 
     return x
 
-def metoda_gradientow_sprzezonych(ff, x0, epsilon, nmax,h):
+
+
+def metoda_gradientow_sprzezonych(ff, x0, epsilon, nmax, h):
+
     i = 0
     x = np.array(x0, dtype=float)
-    g = [pochodna_1, pochodna_2]
-    d = -np.array([g[0](x), g[1](x)])
+    g = np.array([pochodna_1(x), pochodna_2(x)])
+    d = -g
+
     while True:
+        # Update the current point
         x_curr = x + h * d
         i += 1
-        print(np.linalg.norm(x_curr - x))
+
+        # Check for convergence
         if np.linalg.norm(x_curr - x) < epsilon or i >= nmax:
             break
-        beta = np.linalg.norm([g[0](x_curr), g[1](x_curr)])**2/np.linalg.norm([g[0](x), g[1](x)])**2
-        d = -np.array([g[0](x_curr), g[1](x_curr)])+beta*d
+
+        # Compute new gradient
+        g_curr = np.array([pochodna_1(x_curr), pochodna_2(x_curr)])
+
+        # Compute beta using Fletcher-Reeves formula
+        beta = np.linalg.norm(g_curr)**2 / np.linalg.norm(g)**2
+
+        # Update direction
+        d = -g_curr + beta * d
+
+        # Update variables for the next iteration
         x = x_curr
+        g = g_curr
+
+    return x
+
+
+def metoda_newtona(ff,  x0, epsilon, nmax, h):
+
+    i = 0
+    x = np.array(x0, dtype=float)
+
+    while True:
+        # Compute gradient and Hessian
+        g = np.array([pochodna_1(x), pochodna_2(x)])
+        H = np.array([[pochodna_1_1(x), pochodna_1_2(x)], [pochodna_2_1(x), pochodna_2_2(x)]])
+
+        # Compute Newton direction d = -H^-1 * g
+        try:
+            d = -np.linalg.solve(H, g)  # More stable than np.linalg.inv
+        except np.linalg.LinAlgError:
+            print("Hessian is singular, using pseudo-inverse.")
+            d = -np.dot(np.linalg.pinv(H), g)
+
+        # Update the current point
+        x_curr = x + h * d
+        i += 1
+
+        # Check for convergence
+        if np.linalg.norm(x_curr - x) < epsilon or i >= nmax:
+            break
+
+        x = x_curr
+
+    return x
+
+
+def fibonacci_search(ff, a, b, tol):
+    """
+    Fibonacci method for step size selection.
+
+    Parameters:
+    - ff: The function to minimize.
+    - a, b: The interval for the search.
+    - tol: The tolerance for the search.
+
+    Returns:
+    - Optimal step size h.
+    """
+    fib = [1, 1]
+    while (fib[-1] < (b - a) / tol):
+        fib.append(fib[-1] + fib[-2])
+
+    n = len(fib) - 1
+    x1 = a + (fib[n - 2] / fib[n]) * (b - a)
+    x2 = a + (fib[n - 1] / fib[n]) * (b - a)
+
+    for _ in range(n - 1):
+        if ff(x1) > ff(x2):
+            a = x1
+            x1 = x2
+            x2 = a + (fib[n - 1] / fib[n]) * (b - a)
+        else:
+            b = x2
+            x2 = x1
+            x1 = a + (fib[n - 2] / fib[n]) * (b - a)
+
+        n -= 1
+
+    return (a + b) / 2
+
+def metoda_gradientow_prostych_zmiennoskokowa(ff, x, epsilon, nmax, a=0, b=1, tol=1e-5):
+
+    i = 0
+    x = np.array(x, dtype=float)
+
+    while True:
+        # Compute gradient
+        g = np.array([pochodna_1(x), pochodna_2(x)])
+
+        # Determine step size using Fibonacci search
+        direction = -g
+        phi = lambda h: ff(x + h * direction)
+        h = fibonacci_search(phi, a, b, tol)
+
+        # Update the current point
+        x_curr = x + h * direction
+        i += 1
+
+        # Check for convergence
+        if np.linalg.norm(x_curr - x) < epsilon or i >= nmax:
+            break
+
+        x = x_curr
+
+    return x
+
+def metoda_gradientow_sprzezonych_zmiennoskokowa(ff, x, epsilon, nmax, a=0, b=1, tol=1e-5):
+    i = 0
+    x = np.array(x, dtype=float)
+    g = [pochodna_1(x), pochodna_2(x)]
+    d = -np.array([g[0], g[1]])
+    while True:
+        # Define the 1D function along the direction to find optimal step size
+        phi = lambda h: ff(x + h * d)
+        h = fibonacci_search(phi, 0, 1, 1e-5)  # Fibonacci search for step size
+
+        # Update the current point
+        x_curr = x + h * d
+        i += 1
+
+        # Check for convergence
+        if np.linalg.norm(x_curr - x) < epsilon or i >= nmax:
+            break
+
+        # Compute new gradient
+
+        g_curr = np.array([pochodna_1(x_curr), pochodna_2(x_curr)])
+
+
+        # Compute beta using Fletcher-Reeves formula
+
+        beta = np.linalg.norm(g_curr)**2 / np.linalg.norm(g)**2
+
+        # Update direction
+        d = -g_curr + beta * d
+
+        # Update variables for the next iteration
+        x = x_curr
+        g = g_curr
+
+    return x
+
+def metoda_newtona_zmiennoskokowa(ff, x, epsilon, nmax, a=0, b=1, tol=1e-5):
+
+    i = 0
+    x = np.array(x, dtype=float)
+
+    while True:
+        # Compute gradient and Hessian
+        g = np.array([pochodna_1(x), pochodna_2(x)])
+        H = np.array([[pochodna_1_1(x), pochodna_1_2(x)], [pochodna_2_1(x), pochodna_2_2(x)]])
+
+        # Debug: Print gradient norm
+        grad_norm = np.linalg.norm(g)
+        print(f"Iteration {i}: Gradient norm = {grad_norm}")
+
+        if grad_norm < epsilon:
+            print("Convergence achieved: Gradient norm is below threshold.")
+            break
+
+        # Compute Newton direction d = -H^-1 * g
+        try:
+            d = -np.linalg.solve(H, g)  # More stable than np.linalg.inv
+        except np.linalg.LinAlgError:
+            print("Hessian is singular, using pseudo-inverse.")
+            d = -np.dot(np.linalg.pinv(H), g)
+
+        # Determine step size using Fibonacci search
+        phi = lambda h: ff(x + h * d)
+        h = fibonacci_search(phi, a, b, tol)
+        print(f"Iteration {i}: Step size = {h}")
+
+        # Update the current point
+        x_curr = x + h * d
+        i += 1
+
+        # Check for convergence
+        if np.linalg.norm(x_curr - x) < epsilon:
+            print("Convergence achieved: Change in x is below threshold.")
+            break
+        if i >= nmax:
+            print("Maximum iterations reached.")
+            break
+
+        x = x_curr
+
     return x

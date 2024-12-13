@@ -159,4 +159,4 @@ def constraint_g3(x):
 
 def ff4t(x):
     x1,x2 = x
-    return (x1+2*x2-7)**5 + (2*x1+x2-5)**2
+    return (x1+2*x2-7)**2 + (2*x1+x2-5)**2
