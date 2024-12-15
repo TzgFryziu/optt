@@ -187,36 +187,36 @@ def lab3_t():
 
 def lab4_t():
     x0 = np.array([-5.0, -5.0])
-    h = 0.25
-    # print("Metoda gradientów prostych:")
-    # res = metoda_gradientow_prostych(ff4t, x0, 0.1,  10000,h)
-    # print(res)
-    # print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
-
-    # print("Metoda gradientów sprzężonych:")
-    # res = metoda_gradientow_sprzezonych(ff4t, x0, 0.1,  10000,h)
-    # print(res)
-    # print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
-
-    print("Metoda Newtona:")
-    res = metoda_newtona(ff4t, x0, 0.1, 1000, h)
+    h = 0.12
+    print("Metoda gradientów prostych:")
+    res = metoda_gradientow_prostych(ff4t, x0, 0.001,  10000,h)
     print(res)
     print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
 
-    # print("Metoda gradientow prostych zmiennoskokowa:")
-    # res = metoda_gradientow_prostych_zmiennoskokowa(ff4t, x0, 0.1,  10000,0,10)
-    # print(res)
-    # print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
+    print("Metoda gradientów sprzężonych:")
+    res = metoda_gradientow_sprzezonych(ff4t, x0, 0.001,  10000,h)
+    print(res)
+    print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
 
-    # print("Metoda gradientow sprzezonych zmiennoskokowa:")
-    # res = metoda_gradientow_sprzezonych_zmiennoskokowa(ff4t, x0, 0.1,  10000,0,10)
-    # print(res)
-    # print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
+    print("Metoda Newtona:")
+    res = metoda_newtona(ff4t, x0, 0.001, 1000, h)
+    print(res)
+    print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
 
-    # print("Metoda Newtona zmiennoskokowa:")
-    # res = metoda_newtona_zmiennoskokowa(ff4t, x0, 0.1,  10000,0,10)
-    # print(res)
-    # print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
+    print("Metoda gradientow prostych zmiennokrokowa:")
+    res = metoda_gradientow_prostych_zmiennoskokowa(ff4t, x0, 0.001,  10000,0,10)
+    print(res)
+    print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
+
+    print("Metoda gradientow sprzezonych zmiennokrokowa:")
+    res = metoda_gradientow_sprzezonych_zmiennoskokowa(ff4t, x0, 0.001,  10000,0,10)
+    print(res)
+    print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
+
+    print("Metoda Newtona zmiennokrokowa:")
+    res = metoda_newtona_zmiennoskokowa(ff4t, x0, 0.001,  10000,0,10)
+    print(res)
+    print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
 
 
 def lab4_r():
@@ -225,15 +225,19 @@ def lab4_r():
 
     # Inicjalizacja parametrów
     initial_theta = np.zeros(3)
-    #
-    # # Obliczenie początkowego kosztu i gradientu
-    # initial_cost = compute_cost(initial_theta, X, y)
-    # print("Początkowy koszt: ", initial_cost)
-    # initial_gradient = compute_gradient(initial_theta, X, y)
-    # print("Początkowy gradient: ", initial_gradient)
-    #
-    print(metoda_gradientow_sprzezonych_r(initial_theta, X, y, 0.1, 10000, 0.0001))
+
+    # Obliczenie początkowego kosztu i gradientu
+    initial_cost = compute_cost(initial_theta, X, y)
+    print("Początkowy koszt: ", initial_cost)
+    initial_gradient = compute_gradient(initial_theta, X, y)
+    print("Początkowy gradient: ", initial_gradient)
+
+    res = metoda_gradientow_sprzezonych_r(initial_theta, X, y, 0.001, 10000, 0.0001)
+    print(res)
+    print("Wartość funkcji celu w punkcie optymalnym: ", compute_cost(res, X, y))
+    print(ocena_klasyfikatora(res, X, y))
+
 
 
 if __name__ == "__main__":
-    lab4_r()
+    lab4_t()

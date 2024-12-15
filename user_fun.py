@@ -196,3 +196,26 @@ def load_data(x_path, y_path):
     for i in range(len(X[0])):
         x2.append(np.array([X[0][i], X[1][i], X[2][i]]).reshape(3, 1))
     return x2, y
+
+
+def przewidywanie(theta, X):
+    result = []
+    for i in range(len(X)):
+        prediction = h0(theta, X[i])
+        result.append(prediction)
+    for i in range(len(result)):
+        if result[i] >= 0.5:
+            result[i] = 1
+        else:
+            result[i] = 0
+    return result
+
+
+def ocena_klasyfikatora(theta, X, y):
+    y_pred = przewidywanie(theta, X)
+    suma = 0
+    for i in range(len(y)):
+        if y_pred[i] == y[i]:
+            suma += 1
+
+    return suma / len(y)

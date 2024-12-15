@@ -710,10 +710,8 @@ def metoda_newtona_zmiennoskokowa(ff, x, epsilon, nmax, a=0, b=1, tol=1e-5):
 
         # Debug: Print gradient norm
         grad_norm = np.linalg.norm(g)
-        print(f"Iteration {i}: Gradient norm = {grad_norm}")
 
         if grad_norm < epsilon:
-            print("Convergence achieved: Gradient norm is below threshold.")
             break
 
         # Compute Newton direction d = -H^-1 * g
@@ -726,7 +724,6 @@ def metoda_newtona_zmiennoskokowa(ff, x, epsilon, nmax, a=0, b=1, tol=1e-5):
         # Determine step size using Fibonacci search
         phi = lambda h: ff(x + h * d)
         h = fibonacci_search(phi, a, b, tol)
-        print(f"Iteration {i}: Step size = {h}")
 
         # Update the current point
         x_curr = x + h * d
@@ -734,7 +731,6 @@ def metoda_newtona_zmiennoskokowa(ff, x, epsilon, nmax, a=0, b=1, tol=1e-5):
 
         # Check for convergence
         if np.linalg.norm(x_curr - x) < epsilon:
-            print("Convergence achieved: Change in x is below threshold.")
             break
         if i >= nmax:
             print("Maximum iterations reached.")
@@ -745,17 +741,16 @@ def metoda_newtona_zmiennoskokowa(ff, x, epsilon, nmax, a=0, b=1, tol=1e-5):
     return x
 
 
-from user_fun import h0
 
 
 def metoda_gradientow_sprzezonych_r(x0, X, y, epsilon, nmax, h):
+
     i = 0
     x = np.array(x0, dtype=float)
     g = compute_gradient(x, X, y)
     d = -g
 
     while np.linalg.norm(g) > epsilon and i < nmax:
-
         # Aktualizacja bieżącego punktu
         x_curr = x + h * d
         g_curr = compute_gradient(x_curr, X, y)
