@@ -155,8 +155,44 @@ def constraint_g2(x):
 
 def constraint_g3(x):
     a = 5
-    return np.sqrt(x[0] ** 2 + x[1] ** 2)- a  # g3(x1, x2) <= 0
+    return np.sqrt(x[0] ** 2 + x[1] ** 2) - a  # g3(x1, x2) <= 0
+
 
 def ff4t(x):
-    x1,x2 = x
-    return (x1+2*x2-7)**2 + (2*x1+x2-5)**2
+    x1, x2 = x
+    return (x1 + 2 * x2 - 7) ** 2 + (2 * x1 + x2 - 5) ** 2
+
+
+def h0(theta, x):
+    return 1 / (1 + np.exp((-theta).T @ x))
+
+
+def compute_cost(theta, X, y):
+    m = len(y)
+    sum = 0
+    for i in range(m):
+        sum += y[i] * np.log(h0(theta, X[i])) + (1 - y[i]) * np.log(1 - h0(theta, X[i]))
+    return -1 / m * sum
+
+
+def compute_gradient(theta, X, y):
+    m = len(y)
+    gradient = np.zeros(theta.shape)
+    for j in range(len(theta)):
+        sum_error = 0
+        for i in range(m):
+            prediction = h0(theta, X[i])
+            sum_error += (prediction - y[i]) * X[i][j]
+        gradient[j] = (1 / m) * sum_error
+
+    return gradient
+
+
+def load_data(x_path, y_path):
+    X = np.loadtxt(x_path, delimiter=';')
+    y = np.loadtxt(y_path, delimiter=';')
+    y = y.flatten()  # Upewnij się, że y jest wektorem płaskim
+    x2 = []
+    for i in range(len(X[0])):
+        x2.append(np.array([X[0][i], X[1][i], X[2][i]]).reshape(3, 1))
+    return x2, y

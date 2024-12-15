@@ -1,5 +1,7 @@
 import numpy as np
 
+from user_fun import compute_gradient
+
 
 def expansion(ff, x0, d, alpha, nmax):
     x = [x0, x0 + d]
@@ -498,22 +500,28 @@ def pochodna_2(x):
     x1, x2 = x
     return 10 * x2 + 8 * x1 - 38
 
+
 def pochodna_1_1(x):
     x1, x2 = x
     return 10
+
+
 def pochodna_1_2(x):
     x1, x2 = x
     return 8
+
+
 def pochodna_2_1(x):
     x1, x2 = x
     return 8
+
+
 def pochodna_2_2(x):
     x1, x2 = x
     return 10
 
 
-def metoda_gradientow_prostych(ff,  x0, epsilon, nmax, h):
-
+def metoda_gradientow_prostych(ff, x0, epsilon, nmax, h):
     i = 0
     x = np.array(x0, dtype=float)
 
@@ -534,9 +542,7 @@ def metoda_gradientow_prostych(ff,  x0, epsilon, nmax, h):
     return x
 
 
-
 def metoda_gradientow_sprzezonych(ff, x0, epsilon, nmax, h):
-
     i = 0
     x = np.array(x0, dtype=float)
     g = np.array([pochodna_1(x), pochodna_2(x)])
@@ -555,7 +561,7 @@ def metoda_gradientow_sprzezonych(ff, x0, epsilon, nmax, h):
         g_curr = np.array([pochodna_1(x_curr), pochodna_2(x_curr)])
 
         # Compute beta using Fletcher-Reeves formula
-        beta = np.linalg.norm(g_curr)**2 / np.linalg.norm(g)**2
+        beta = np.linalg.norm(g_curr) ** 2 / np.linalg.norm(g) ** 2
 
         # Update direction
         d = -g_curr + beta * d
@@ -567,8 +573,7 @@ def metoda_gradientow_sprzezonych(ff, x0, epsilon, nmax, h):
     return x
 
 
-def metoda_newtona(ff,  x0, epsilon, nmax, h):
-
+def metoda_newtona(ff, x0, epsilon, nmax, h):
     i = 0
     x = np.array(x0, dtype=float)
 
@@ -631,8 +636,8 @@ def fibonacci_search(ff, a, b, tol):
 
     return (a + b) / 2
 
-def metoda_gradientow_prostych_zmiennoskokowa(ff, x, epsilon, nmax, a=0, b=1, tol=1e-5):
 
+def metoda_gradientow_prostych_zmiennoskokowa(ff, x, epsilon, nmax, a=0, b=1, tol=1e-5):
     i = 0
     x = np.array(x, dtype=float)
 
@@ -657,6 +662,7 @@ def metoda_gradientow_prostych_zmiennoskokowa(ff, x, epsilon, nmax, a=0, b=1, to
 
     return x
 
+
 def metoda_gradientow_sprzezonych_zmiennoskokowa(ff, x, epsilon, nmax, a=0, b=1, tol=1e-5):
     i = 0
     x = np.array(x, dtype=float)
@@ -679,10 +685,9 @@ def metoda_gradientow_sprzezonych_zmiennoskokowa(ff, x, epsilon, nmax, a=0, b=1,
 
         g_curr = np.array([pochodna_1(x_curr), pochodna_2(x_curr)])
 
-
         # Compute beta using Fletcher-Reeves formula
 
-        beta = np.linalg.norm(g_curr)**2 / np.linalg.norm(g)**2
+        beta = np.linalg.norm(g_curr) ** 2 / np.linalg.norm(g) ** 2
 
         # Update direction
         d = -g_curr + beta * d
@@ -693,8 +698,8 @@ def metoda_gradientow_sprzezonych_zmiennoskokowa(ff, x, epsilon, nmax, a=0, b=1,
 
     return x
 
-def metoda_newtona_zmiennoskokowa(ff, x, epsilon, nmax, a=0, b=1, tol=1e-5):
 
+def metoda_newtona_zmiennoskokowa(ff, x, epsilon, nmax, a=0, b=1, tol=1e-5):
     i = 0
     x = np.array(x, dtype=float)
 
@@ -736,5 +741,38 @@ def metoda_newtona_zmiennoskokowa(ff, x, epsilon, nmax, a=0, b=1, tol=1e-5):
             break
 
         x = x_curr
+
+    return x
+
+
+from user_fun import h0
+
+
+def metoda_gradientow_sprzezonych_r(x0, X, y, epsilon, nmax, h):
+    i = 0
+    x = np.array(x0, dtype=float)
+    g = compute_gradient(x, X, y)
+    d = -g
+
+    while np.linalg.norm(g) > epsilon and i < nmax:
+
+        # Aktualizacja bieżącego punktu
+        x_curr = x + h * d
+        g_curr = compute_gradient(x_curr, X, y)
+
+        # Sprawdzenie zbieżności
+        if np.linalg.norm(g_curr) < epsilon:
+            break
+
+        # Obliczenie beta (Fletcher-Reeves)
+        beta = np.linalg.norm(g_curr) ** 2 / np.linalg.norm(g) ** 2
+
+        # Aktualizacja kierunku
+        d = -g_curr + beta * d
+
+        # Aktualizacja zmiennych
+        x = x_curr
+        g = g_curr
+        i += 1
 
     return x

@@ -184,8 +184,9 @@ def lab3_t():
     except ValueError as e:
         print("Błąd:", e)
 
+
 def lab4_t():
-    x0 = np.array([-5.0,-5.0])
+    x0 = np.array([-5.0, -5.0])
     h = 0.25
     # print("Metoda gradientów prostych:")
     # res = metoda_gradientow_prostych(ff4t, x0, 0.1,  10000,h)
@@ -198,7 +199,7 @@ def lab4_t():
     # print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
 
     print("Metoda Newtona:")
-    res = metoda_newtona(ff4t, x0, 0.1,  1000,h)
+    res = metoda_newtona(ff4t, x0, 0.1, 1000, h)
     print(res)
     print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
 
@@ -217,5 +218,22 @@ def lab4_t():
     # print(res)
     # print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
 
+
+def lab4_r():
+    # Wczytanie danych
+    X, y = load_data("XData.txt", "YData.txt")
+
+    # Inicjalizacja parametrów
+    initial_theta = np.zeros(3)
+    #
+    # # Obliczenie początkowego kosztu i gradientu
+    # initial_cost = compute_cost(initial_theta, X, y)
+    # print("Początkowy koszt: ", initial_cost)
+    # initial_gradient = compute_gradient(initial_theta, X, y)
+    # print("Początkowy gradient: ", initial_gradient)
+    #
+    print(metoda_gradientow_sprzezonych_r(initial_theta, X, y, 0.1, 10000, 0.0001))
+
+
 if __name__ == "__main__":
-    lab4_t()
+    lab4_r()
