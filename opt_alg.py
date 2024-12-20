@@ -535,6 +535,7 @@ def metoda_gradientow_prostych(ff, x0, epsilon, nmax, h):
 
         # Check for convergence
         if np.linalg.norm(x_curr - x) < epsilon or i >= nmax:
+
             break
 
         x = x_curr
@@ -603,17 +604,7 @@ def metoda_newtona(ff, x0, epsilon, nmax, h):
 
 
 def fibonacci_search(ff, a, b, tol):
-    """
-    Fibonacci method for step size selection.
 
-    Parameters:
-    - ff: The function to minimize.
-    - a, b: The interval for the search.
-    - tol: The tolerance for the search.
-
-    Returns:
-    - Optimal step size h.
-    """
     fib = [1, 1]
     while (fib[-1] < (b - a) / tol):
         fib.append(fib[-1] + fib[-2])
@@ -771,3 +762,48 @@ def metoda_gradientow_sprzezonych_r(x0, X, y, epsilon, nmax, h):
         i += 1
 
     return x
+
+
+def powell_method(func, x0, epsilon, n_max):
+    n = len(x0)
+    x= x0
+    directions = np.eye(n)  # Initial set of directions
+
+    i = 0
+    f_calls = 0
+
+    while f_calls <= n_max:
+        p0 = np.copy(x)
+
+        for j in range(n):
+            direction = directions[j]
+
+            # Line minimization along direction using Fibonacci search
+            def line_func(alpha):
+                return func(p0 + alpha * direction)
+
+            step_size = fibonacci_search(line_func, 0, 10, epsilon)
+
+            p0 = p0 + step_size * direction
+
+        # Check for convergence
+        if np.linalg.norm(p0 - x) < epsilon:
+            return p0
+
+        # Update the directions
+        for j in range(n - 1):
+            directions[j] = directions[j + 1]
+
+        directions[-1] = p0 - x
+
+        # Line minimization in the new direction using Fibonacci search
+        def line_func_final(alpha):
+            return func(p0 + alpha * directions[-1])
+
+        step_size = fibonacci_search(line_func_final, 0, 1, epsilon)
+
+        x = p0 + step_size * directions[-1]
+
+        i += 1
+
+    return "Error: Maximum number of function calls exceeded."

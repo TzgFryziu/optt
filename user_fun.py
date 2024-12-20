@@ -219,3 +219,13 @@ def ocena_klasyfikatora(theta, X, y):
             suma += 1
 
     return suma / len(y)
+
+def ff5t1(x,a):
+    x1, x2 = x
+    return a * ((x1-2)**2 + (x2-2)**2)
+def ff5t2(x,a):
+    x1, x2 = x
+    return 1/a * ((x2+2)**2 + (x2+2)**2)
+# Weighted aggregation function
+def aggregated_function(x, a, w1=0.5, w2=0.5):
+    return w1 * ff5t1(x, a) + w2 * ff5t2(x, a)

@@ -237,7 +237,16 @@ def lab4_r():
     print("Wartość funkcji celu w punkcie optymalnym: ", compute_cost(res, X, y))
     print(ocena_klasyfikatora(res, X, y))
 
+def lab5_t():
+    a = 10  # Parameter for the objective functions
+    x0 = np.array([-10.0, -10.0])  # Initial guess
+    epsilon = 1e-6
+    n_max = 1000
+
+    # Optimize aggregated function
+    result = powell_method(lambda x: aggregated_function(x, a, w1=0.01, w2=0.99), x0, epsilon, n_max)
+    print("Result (Pareto optimization):", result)
 
 
 if __name__ == "__main__":
-    lab4_t()
+    lab5_t()
