@@ -220,12 +220,38 @@ def ocena_klasyfikatora(theta, X, y):
 
     return suma / len(y)
 
-def ff5t1(x,a):
+
+def ff6t(x):
     x1, x2 = x
-    return a * ((x1-2)**2 + (x2-2)**2)
-def ff5t2(x,a):
-    x1, x2 = x
-    return 1/a * ((x2+2)**2 + (x2+2)**2)
-# Weighted aggregation function
-def aggregated_function(x, a, w1=0.5, w2=0.5):
-    return w1 * ff5t1(x, a) + w2 * ff5t2(x, a)
+    return x1 ** 2 + x2 ** 2 - np.cos(2.5 * np.pi * x1) - np.cos(2.5 * np.pi * x2) + 2
+
+
+def df6(t, Y, ud1, ud2):
+    m1, m2, k1, k2, F = 5, 5, 1, 1, 1
+    b1, b2 = ud2[0], ud2[1]
+    dY = np.zeros(4)
+    dY[0] = Y[1]
+    dY[1] = (-b1 * Y[1] - b2 * (Y[1] - Y[3]) - k1 * Y[0] - k2 * (Y[0] - Y[2])) / m1
+    dY[2] = Y[3]
+    dY[3] = (F + b2 * (Y[1] - Y[3]) + k2 * (Y[0] - Y[2])) / m2
+    return dY
+
+
+def ff6R(x, ud1, ud2):
+    N = 1001
+    try:
+        # Wczytaj dane z pliku 'polozenia.txt' z separatorem ';'
+        X = np.genfromtxt("polozenia.txt", delimiter=';', comments=None)
+
+
+    Y0 = np.array([0, 0, 0, 0])
+    sol = solve_ivp(df6, [0, 10], Y0, args=(ud1, ud2), t_eval=np.linspace(0, 10, N))
+    Y = sol.y.T  # Transpose to get the correct shape
+
+    y = 0
+    for i in range(N):
+        print(f"{i} {Y[i, 0]} {Y[i, 2]}")
+        y += abs(X[i, 0] - Y[i, 0]) + abs(X[i, 1] - Y[i, 2])
+
+    y = y / (2.0 * N)
+    return y

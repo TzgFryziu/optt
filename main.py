@@ -187,14 +187,14 @@ def lab3_t():
 
 def lab4_t():
     x0 = np.array([-5.0, -5.0])
-    h = 0.12
+    h = 0.05
     print("Metoda gradientów prostych:")
-    res = metoda_gradientow_prostych(ff4t, x0, 0.001,  10000,h)
+    res = metoda_gradientow_prostych(ff4t, x0, 0.001, 10000, h)
     print(res)
     print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
 
     print("Metoda gradientów sprzężonych:")
-    res = metoda_gradientow_sprzezonych(ff4t, x0, 0.001,  10000,h)
+    res = metoda_gradientow_sprzezonych(ff4t, x0, 0.001, 10000, h)
     print(res)
     print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
 
@@ -204,17 +204,17 @@ def lab4_t():
     print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
 
     print("Metoda gradientow prostych zmiennokrokowa:")
-    res = metoda_gradientow_prostych_zmiennoskokowa(ff4t, x0, 0.001,  10000,0,10)
+    res = metoda_gradientow_prostych_zmiennoskokowa(ff4t, x0, 0.001, 10000, 0, 10)
     print(res)
     print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
 
     print("Metoda gradientow sprzezonych zmiennokrokowa:")
-    res = metoda_gradientow_sprzezonych_zmiennoskokowa(ff4t, x0, 0.001,  10000,0,10)
+    res = metoda_gradientow_sprzezonych_zmiennoskokowa(ff4t, x0, 0.001, 10000, 0, 10)
     print(res)
     print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
 
     print("Metoda Newtona zmiennokrokowa:")
-    res = metoda_newtona_zmiennoskokowa(ff4t, x0, 0.001,  10000,0,10)
+    res = metoda_newtona_zmiennoskokowa(ff4t, x0, 0.001, 10000, 0, 10)
     print(res)
     print("Wartość funkcji celu w punkcie optymalnym: ", ff4t(res))
 
@@ -232,21 +232,36 @@ def lab4_r():
     initial_gradient = compute_gradient(initial_theta, X, y)
     print("Początkowy gradient: ", initial_gradient)
 
-    res = metoda_gradientow_sprzezonych_r(initial_theta, X, y, 0.001, 10000, 0.0001)
+    res = metoda_gradientow_sprzezonych_r(initial_theta, X, y, 0.001, 100000, 0.0001)
     print(res)
     print("Wartość funkcji celu w punkcie optymalnym: ", compute_cost(res, X, y))
     print(ocena_klasyfikatora(res, X, y))
 
-def lab5_t():
-    a = 10  # Parameter for the objective functions
-    x0 = np.array([-10.0, -10.0])  # Initial guess
-    epsilon = 1e-6
-    n_max = 1000
 
-    # Optimize aggregated function
-    result = powell_method(lambda x: aggregated_function(x, a, w1=0.01, w2=0.99), x0, epsilon, n_max)
-    print("Result (Pareto optimization):", result)
+def lab6_t():
+    x0 = np.array([1, 3])
+    lb = np.array([-5, -5])
+    ub = np.array([5, 5])
+    mu = 40  # Liczebność populacji bazowej
+    lambda_ = 20  # Liczebność populacji tymczasowej
+    sigma0 = 100  # Początkowa wartość współczynnika zakresu mutacji
+    epsilon = 1e-2  # Dokładność obliczeń
+    Nmax = 100000  # Maksymalna liczba wywołań funkcji celu
+
+    # Uruchomienie algorytmu ewolucyjnego
+
+    best_solution = evolutionary_algorithm(ff6t, x0, lb, ub, mu, lambda_, sigma0, epsilon, Nmax)
+
+    print("Najlepsze rozwiązanie:", best_solution)
+    print("Wartość funkcji celu w najlepszym rozwiązaniu:", ff6t(best_solution))
+
+
+def lab6_r():
+    ud1 = np.array([0.0])  # Placeholder, jeśli nie jest używane w 'df6'
+    ud2 = np.array([0.1, 0.1])  # Wartości b1 i b2
+
+    print(ff6R([1, 1], ud1, ud2))
 
 
 if __name__ == "__main__":
-    lab5_t()
+    lab6_r()

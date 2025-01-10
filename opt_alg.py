@@ -535,7 +535,6 @@ def metoda_gradientow_prostych(ff, x0, epsilon, nmax, h):
 
         # Check for convergence
         if np.linalg.norm(x_curr - x) < epsilon or i >= nmax:
-
             break
 
         x = x_curr
@@ -604,7 +603,17 @@ def metoda_newtona(ff, x0, epsilon, nmax, h):
 
 
 def fibonacci_search(ff, a, b, tol):
+    """
+    Fibonacci method for step size selection.
 
+    Parameters:
+    - ff: The function to minimize.
+    - a, b: The interval for the search.
+    - tol: The tolerance for the search.
+
+    Returns:
+    - Optimal step size h.
+    """
     fib = [1, 1]
     while (fib[-1] < (b - a) / tol):
         fib.append(fib[-1] + fib[-2])
@@ -732,10 +741,7 @@ def metoda_newtona_zmiennoskokowa(ff, x, epsilon, nmax, a=0, b=1, tol=1e-5):
     return x
 
 
-
-
 def metoda_gradientow_sprzezonych_r(x0, X, y, epsilon, nmax, h):
-
     i = 0
     x = np.array(x0, dtype=float)
     g = compute_gradient(x, X, y)
@@ -764,46 +770,62 @@ def metoda_gradientow_sprzezonych_r(x0, X, y, epsilon, nmax, h):
     return x
 
 
-def powell_method(func, x0, epsilon, n_max):
-    n = len(x0)
-    x= x0
-    directions = np.eye(n)  # Initial set of directions
+import numpy as np
 
+
+def evolutionary_algorithm(f, x0, lb, ub, mu, lambda_, sigma0, epsilon, Nmax):
+    N = len(x0)
     i = 0
-    f_calls = 0
+    alpha = N ** 0.5
+    beta = (2 * N) ** 0.25
 
-    while f_calls <= n_max:
-        p0 = np.copy(x)
+    # Generate initial population
+    P = [np.copy(x0) + sigma0 * np.random.randn(N) for _ in range(mu)]
+    T = [np.copy(sigma0) for _ in range(mu)]
 
-        for j in range(n):
-            direction = directions[j]
+    while True:
+        # Roulette wheel selection
+        fitness = np.array([1 / f(x) for x in P])
+        Q = np.cumsum(fitness / fitness.sum())
 
-            # Line minimization along direction using Fibonacci search
-            def line_func(alpha):
-                return func(p0 + alpha * direction)
+        # Reproduction
+        T_new = []
+        for j in range(lambda_):
+            # Select first parent
+            r1 = np.random.rand()
+            A = P[np.searchsorted(Q, r1)]
 
-            step_size = fibonacci_search(line_func, 0, 10, epsilon)
+            # Select second parent
+            r2 = np.random.rand()
+            B = P[np.searchsorted(Q, r2)]
 
-            p0 = p0 + step_size * direction
+            # Crossover
+            r = np.random.rand()
+            Tj = r * A + (1 - r) * B
 
-        # Check for convergence
-        if np.linalg.norm(p0 - x) < epsilon:
-            return p0
+            # Mutation
+            tau = 1 / (alpha * np.sqrt(N))
+            tau_prime = 1 / (beta * np.sqrt(N))
+            Tj_sigma = sigma0 * np.exp(tau * np.random.randn() + tau_prime * np.random.randn())
+            Tj = Tj + Tj_sigma * np.random.randn(N)
 
-        # Update the directions
-        for j in range(n - 1):
-            directions[j] = directions[j + 1]
+            # Ensure Tj is within bounds
+            Tj = np.clip(Tj, lb, ub)
 
-        directions[-1] = p0 - x
+            T_new.append(Tj)
 
-        # Line minimization in the new direction using Fibonacci search
-        def line_func_final(alpha):
-            return func(p0 + alpha * directions[-1])
+        # Selection of the next generation
+        combined = P + T_new
+        combined.sort(key=f)
+        P = combined[:mu]
 
-        step_size = fibonacci_search(line_func_final, 0, 1, epsilon)
+        # Best individual in the current population
+        x_star = P[0]
 
-        x = p0 + step_size * directions[-1]
+        # Check for termination
+        if f(x_star) <= epsilon:
+            return x_star
+        if i >= Nmax:
+            raise RuntimeError("Maximum number of function evaluations exceeded")
 
         i += 1
-
-    return "Error: Maximum number of function calls exceeded."
